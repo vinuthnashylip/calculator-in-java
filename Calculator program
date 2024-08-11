@@ -23,37 +23,5 @@
  
  To exit the program, simply type "no" when prompted to calculate another expression.
  */
-import java.util.Scanner;
 
-public class Calculator {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Welcome to the Calculator! Enter an expression: ");
-        String expression = scanner.nextLine();
-        if(expression.endsWith("=")) expression = expression.substring(0,expression.length()-1);
-        try{double result = evaluateExpression(expression);System.out.println("Result: "+result);}catch(Exception e){System.out.println("Error: "+e.getMessage());}
-        System.out.print("Do you want to calculate another expression? (yes/no): ");
-        String response = scanner.nextLine();
-        while(response.equalsIgnoreCase("yes")){
-            System.out.print("Enter an expression: ");
-            expression = scanner.nextLine();
-            if(expression.endsWith("=")) expression = expression.substring(0,expression.length()-1);
-            try{double result = evaluateExpression(expression);System.out.println("Result: "+result);}catch(Exception e){System.out.println("Error: "+e.getMessage());}
-            System.out.print("Do you want to calculate another expression? (yes/no): ");
-            response = scanner.nextLine();
-        }
-        System.out.println("Goodbye!");
-    }
 
-    private static double evaluateExpression(String expression) {
-        return new Object(){
-            int pos = -1,ch;
-            void nextChar(){ch = (++pos < expression.length()) ? expression.charAt(pos) : -1;}
-            boolean eat(int charToEat){while(ch == ' ') nextChar();if(ch == charToEat){nextChar();return true;}return false;}
-            double parse(){nextChar();double v = parseExpression();if(pos < expression.length()) throw new RuntimeException("Unexpected character: "+(char)ch);return v;}
-            double parseExpression(){double v = parseTerm();while(true){if(eat('+')){v += parseTerm();}else if(eat('-')){v -= parseTerm();}else{break;}}return v;}
-            double parseTerm(){double v = parseFactor();while(true){if(eat('*')){v *= parseFactor();}else if(eat('/')){v /= parseFactor();}else{break;}}return v;}
-            double parseFactor(){if(eat('+')) return parseFactor();if(eat('-')) return -parseFactor();double v;int startPos = this.pos;if(eat('(')){v = parseExpression();eat(')');}else{while(ch >= '0' && ch <= '9' || ch == '.') nextChar();v = Double.parseDouble(expression.substring(startPos,this.pos));}return v;}
-        }.parse();
-    }
-}

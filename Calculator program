@@ -1,0 +1,59 @@
+/*
+ Welcome to the Calculator program!
+ 
+ To use this program, simply enter a mathematical expression when prompted, and the program will evaluate it and display the result.
+ 
+ Supported operations:
+   - Addition: +
+   - Subtraction: -
+   - Multiplication: /
+   - Division: /
+   - Unary plus and minus: +, -
+   - Parentheses: ()
+ 
+ Examples of valid expressions:
+   - 2+2
+   - 3/4
+   - 10-5+2
+   - (2+3)/4
+ 
+ Note: You can enter an expression with an equals sign (=) at the end, and the program will ignore it. For example, "4+2=" is equivalent to "4+2".
+ 
+ If you enter an invalid expression, the program will display an error message.
+ 
+ To exit the program, simply type "no" when prompted to calculate another expression.
+ */
+import java.util.Scanner;
+
+public class Calculator {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Welcome to the Calculator! Enter an expression: ");
+        String expression = scanner.nextLine();
+        if(expression.endsWith("=")) expression = expression.substring(0,expression.length()-1);
+        try{double result = evaluateExpression(expression);System.out.println("Result: "+result);}catch(Exception e){System.out.println("Error: "+e.getMessage());}
+        System.out.print("Do you want to calculate another expression? (yes/no): ");
+        String response = scanner.nextLine();
+        while(response.equalsIgnoreCase("yes")){
+            System.out.print("Enter an expression: ");
+            expression = scanner.nextLine();
+            if(expression.endsWith("=")) expression = expression.substring(0,expression.length()-1);
+            try{double result = evaluateExpression(expression);System.out.println("Result: "+result);}catch(Exception e){System.out.println("Error: "+e.getMessage());}
+            System.out.print("Do you want to calculate another expression? (yes/no): ");
+            response = scanner.nextLine();
+        }
+        System.out.println("Goodbye!");
+    }
+
+    private static double evaluateExpression(String expression) {
+        return new Object(){
+            int pos = -1,ch;
+            void nextChar(){ch = (++pos < expression.length()) ? expression.charAt(pos) : -1;}
+            boolean eat(int charToEat){while(ch == ' ') nextChar();if(ch == charToEat){nextChar();return true;}return false;}
+            double parse(){nextChar();double v = parseExpression();if(pos < expression.length()) throw new RuntimeException("Unexpected character: "+(char)ch);return v;}
+            double parseExpression(){double v = parseTerm();while(true){if(eat('+')){v += parseTerm();}else if(eat('-')){v -= parseTerm();}else{break;}}return v;}
+            double parseTerm(){double v = parseFactor();while(true){if(eat('*')){v *= parseFactor();}else if(eat('/')){v /= parseFactor();}else{break;}}return v;}
+            double parseFactor(){if(eat('+')) return parseFactor();if(eat('-')) return -parseFactor();double v;int startPos = this.pos;if(eat('(')){v = parseExpression();eat(')');}else{while(ch >= '0' && ch <= '9' || ch == '.') nextChar();v = Double.parseDouble(expression.substring(startPos,this.pos));}return v;}
+        }.parse();
+    }
+}
